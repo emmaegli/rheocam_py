@@ -349,7 +349,7 @@ def capture_frames(
                 temporal_frames.append(frame_rgb.reshape(-1, 3).tolist())
                 next_capture += 1.0
                 frame_count = len(temporal_frames)
-                ts = int(to_polarspec_timestamp())
+                ts = int(datetime.now().timestamp())
 
                 # Append centered crop to HDF5
                 if hdf5_file and box_w and box_h:
