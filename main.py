@@ -194,7 +194,7 @@ def save_screenshot(
 
     # timestamp = to_polarspec_timestamp()
     timestamp = datetime.now().isoformat()
-    path = os.path.join(output_dir, f"frame_{frame_count:04d}_{timestamp}.png")
+    path = os.path.join(output_dir, f"frame.png")
     cv2.imwrite(path, frame)
     print(f"  Screenshot saved: {path}")
     return path
