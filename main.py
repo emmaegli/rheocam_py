@@ -104,7 +104,8 @@ def save_screenshot(frame_bgr, frame_count, output_dir, box_w, box_h,
 
 
 def capture_frames(camera_index=0, test_length=10.0, show_preview=False,
-                   screenshot_interval=None, screenshot_dir="./Results/rgb",
+                   capture_interval=1, screenshot_interval=None,
+                   screenshot_dir="./Results/rgb",
                    box_w=24, box_h=24, center_x=None, center_y=None):
     cap = cv2.VideoCapture(camera_index)
     if not cap.isOpened():
@@ -146,7 +147,7 @@ def capture_frames(camera_index=0, test_length=10.0, show_preview=False,
             if now >= next_capture:
                 frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
                 # temporal_frames.append(frame_rgb.reshape(-1, 3).tolist())
-                next_capture += 1.0
+                next_capture += capture_interval
                 frame_count += 1
                 ts = int(to_polarspec_timestamp())
 
@@ -196,8 +197,11 @@ if __name__ == "__main__":
     CENTER_X = 650
     CENTER_Y = 400
 
-    SCHEDULE    = {"hours": 0, "minutes": 0, "seconds": 5}
+    SCHEDULE    = {"hours": 5, "minutes": 0, "seconds": 0}
     TEST_LENGTH = timedelta(**SCHEDULE).total_seconds()
+
+    CAPTURE_INTERVAL  = 4    # capture avg RGB every 4 seconds
+    SCREENSHOT_EVERY  = 75   # every 75 frames × 4s = every 5 minutes
 
     # print(list_available_cameras())
 
@@ -205,7 +209,8 @@ if __name__ == "__main__":
         camera_index=CAMERA_INDEX,
         test_length=TEST_LENGTH,
         show_preview=SHOW_PREVIEW,
-        screenshot_interval=5,
+        capture_interval=CAPTURE_INTERVAL,
+        screenshot_interval=SCREENSHOT_EVERY,
         screenshot_dir="./Results/rgb",
         box_w=BOX_W,
         box_h=BOX_H,
