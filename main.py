@@ -428,7 +428,7 @@ if __name__ == "__main__":
     # Center crop box — defined once, used everywhere
     BOX_W = 24
     BOX_H = 24
-    CENTER_X = 690
+    CENTER_X = 600
     CENTER_Y = 400
 
     SCHEDULE = {"hours": 0, "minutes": 0, "seconds": 5}
