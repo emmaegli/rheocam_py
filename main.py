@@ -418,45 +418,45 @@ if __name__ == "__main__":
     SCHEDULE = {"hours": 0, "minutes": 0, "seconds": 5}
     TEST_LENGTH = timedelta(**SCHEDULE).total_seconds()
 
-    print(list_available_cameras())  # look for 720p
+    # print(list_available_cameras())  # look for 720p
 
-    # frames = capture_frames(
-    #     camera_index=CAMERA_INDEX,
-    #     test_length=TEST_LENGTH,
-    #     show_preview=SHOW_PREVIEW,
-    #     screenshot_interval=5,
-    #     box_w=BOX_W,
-    #     box_h=BOX_H,
-    #     hdf5_path="./Results/rgb/capture.h5",
-    # )
+    frames = capture_frames(
+        camera_index=CAMERA_INDEX,
+        test_length=TEST_LENGTH,
+        show_preview=SHOW_PREVIEW,
+        screenshot_interval=5,
+        box_w=BOX_W,
+        box_h=BOX_H,
+        hdf5_path="./Results/rgb/capture.h5",
+    )
 
-    # if frames:
+    if frames:
 
-    #     with open("./Results/rgb/out.txt", "w+") as f:
-    #         twod_frames = []
-    #         for frame in frames:
-    #             twod_frame = [[]]
-    #             row_index = 0
-    #             for idx, pixel in enumerate(frame):
-    #                 twod_frame[row_index].append(pixel)
-    #                 if idx % FRAME_WIDTH == 0 and idx != 0:
-    #                     row_index += 1
-    #                     twod_frame.append([])
-    #             twod_frames.append(twod_frame)
+        with open("./Results/rgb/out.txt", "w+") as f:
+            twod_frames = []
+            for frame in frames:
+                twod_frame = [[]]
+                row_index = 0
+                for idx, pixel in enumerate(frame):
+                    twod_frame[row_index].append(pixel)
+                    if idx % FRAME_WIDTH == 0 and idx != 0:
+                        row_index += 1
+                        twod_frame.append([])
+                twod_frames.append(twod_frame)
 
-    #         print_frames(twod_frames, f)
+            print_frames(twod_frames, f)
 
-    #     with open("./Results/rgb/centered.txt", "w+") as f:
-    #         centered_frames = []
-    #         for frame in twod_frames:
-    #             center_h = len(frame) // 2
-    #             center_w = len(frame[0]) // 2
-    #             start_row = center_h - BOX_H // 2
-    #             end_row = center_h + BOX_H // 2
-    #             start_col = center_w - BOX_W // 2
-    #             end_col = center_w + BOX_W // 2
+        with open("./Results/rgb/centered.txt", "w+") as f:
+            centered_frames = []
+            for frame in twod_frames:
+                center_h = len(frame) // 2
+                center_w = len(frame[0]) // 2
+                start_row = center_h - BOX_H // 2
+                end_row = center_h + BOX_H // 2
+                start_col = center_w - BOX_W // 2
+                end_col = center_w + BOX_W // 2
 
-    #             box = [row[start_col:end_col] for row in frame[start_row:end_row]]
-    #             centered_frames.append(box)
+                box = [row[start_col:end_col] for row in frame[start_row:end_row]]
+                centered_frames.append(box)
 
-    #         print_frames(centered_frames, f)
+            print_frames(centered_frames, f)
