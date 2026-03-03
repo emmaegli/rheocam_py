@@ -8,9 +8,32 @@ import h5py
 import numpy as np
 import time
 
-from datetime import timedelta, datetime
+from datetime import datetime, timezone, timedelta
 
-# from utils.polarspec_timestamp import to_polarspec_timestamp
+EPOCH_ORIGIN = datetime(2019, 1, 1, 0, 0, 0)  # January 1, 2019 00:00:00 UTC
+# from polarspec logic: https://github.com/ayisakov/polarspec/blob/40684015acaf392959d8c877f10f04c0bda6095a/polarspec/StepRotateAndCapture.cpp#L149
+
+
+def to_polarspec_timestamp(
+    dt: datetime | None = None,
+    epoch: datetime = EPOCH_ORIGIN,
+    prefix: str = "",
+) -> str:
+    """
+    Convert a datetime to a polarspec-style timestamp (seconds since a given epoch).
+
+    Args:
+        dt:     datetime to convert. Defaults to current UTC time if None.
+        epoch:  The origin datetime to measure from. Defaults to 2019-01-01 UTC.
+        prefix: String prefix for the timestamp. Defaults to empty string.
+
+    Returns:
+        A string in the format "<prefix><seconds>", e.g. "RR221688546".
+    """
+    if dt is None:
+        dt = datetime.now(timezone.utc).replace(tzinfo=None)
+    delta = dt - epoch
+    return f"{prefix}{int(delta.total_seconds())}"
 
 
 def list_available_cameras(max_index: int = 10) -> list[dict]:
@@ -43,27 +66,6 @@ def list_available_cameras(max_index: int = 10) -> list[dict]:
             )
             cap.release()
     return available
-
-
-def get_pixel_timeline(
-    temporal_frames: list[list[list[int]]],
-    x: int,
-    y: int,
-    frame_width: int,
-) -> list[list[int]]:
-    """
-    Extract the RGB timeline for a single pixel across all frames.
-
-    Args:
-        temporal_frames: Output from capture_frames().
-        x, y:           Pixel coordinates (column, row).
-        frame_width:    Width of the frame in pixels.
-
-    Returns:
-        A list of [R, G, B] values, one entry per frame.
-    """
-    idx = y * frame_width + x
-    return [frame[idx] for frame in temporal_frames]
 
 
 def add_frame_axes(
@@ -156,6 +158,8 @@ def save_screenshot(
     box_w: int | None = None,
     box_h: int | None = None,
     axes_margin: int = 60,
+    center_x=None,
+    center_y=None,
 ) -> str:
     """
     Save a BGR frame as a PNG with a polarspec-format timestamp in the filename.
@@ -180,21 +184,21 @@ def save_screenshot(
 
         if box_w is not None and box_h is not None:
             h, w = frame_bgr.shape[:2]
-            center_h = h // 2
-            center_w = w // 2
-            start_row = center_h - box_h // 2
-            end_row = center_h + box_h // 2
-            start_col = center_w - box_w // 2
-            end_col = center_w + box_w // 2
+            cx = center_x if center_x is not None else w // 2
+            cy = center_y if center_y is not None else h // 2
+            start_row = cy - box_h // 2
+            end_row = cy + box_h // 2
+            start_col = cx - box_w // 2
+            end_col = cx + box_w // 2
             top_left = (start_col + axes_margin, start_row + axes_margin)
             bottom_right = (end_col + axes_margin, end_row + axes_margin)
             cv2.rectangle(frame, top_left, bottom_right, (0, 0, 255), 1)
     else:
         frame = frame_bgr
 
-    # timestamp = to_polarspec_timestamp()
-    timestamp = datetime.now().isoformat()
-    path = os.path.join(output_dir, f"frame.png")
+    timestamp = to_polarspec_timestamp()
+    # timestamp = datetime.now().isoformat()
+    path = os.path.join(output_dir, f"frame_{frame_count:04d}_{timestamp}.png")
     cv2.imwrite(path, frame)
     print(f"  Screenshot saved: {path}")
     return path
@@ -231,7 +235,8 @@ def init_hdf5(
     f.attrs["frame_height"] = frame_height
     f.attrs["box_w"] = box_w
     f.attrs["box_h"] = box_h
-    f.attrs["start_timestamp"] = datetime.now().isoformat()
+    # f.attrs["start_timestamp"] = datetime.now().isoformat()
+    f.attrs["start_timestamp"] = to_polarspec_timestamp()
 
     grp = f.create_group("frames")
 
@@ -289,6 +294,8 @@ def capture_frames(
     box_w: int | None = None,
     box_h: int | None = None,
     hdf5_path: str | None = None,
+    center_x=None,
+    center_y=None,
 ) -> list[list[list[int]]]:
     """
     Capture one frame per second from a USB camera for a fixed duration.
@@ -332,6 +339,9 @@ def capture_frames(
     start_time = time.monotonic()
     next_capture = start_time
 
+    cx = center_x if center_x is not None else w // 2
+    cy = center_y if center_y is not None else h // 2
+
     try:
         while True:
             now = time.monotonic()
@@ -349,17 +359,16 @@ def capture_frames(
                 temporal_frames.append(frame_rgb.reshape(-1, 3).tolist())
                 next_capture += 1.0
                 frame_count = len(temporal_frames)
-                ts = int(datetime.now().timestamp())
+                ts = int(to_polarspec_timestamp())
+                # ts = int(datetime.now().timestamp())
 
                 # Append centered crop to HDF5
                 if hdf5_file and box_w and box_h:
-                    center_h = h // 2
-                    center_w = w // 2
                     crop = frame_rgb[
-                        center_h - box_h // 2 : center_h + box_h // 2,
-                        center_w - box_w // 2 : center_w + box_w // 2,
+                        cy - box_h // 2 : cy + box_h // 2,
+                        cx - box_w // 2 : cx + box_w // 2,
                     ]
-                    append_frame_hdf5(hdf5_file, crop, ts)
+                append_frame_hdf5(hdf5_file, crop, ts)
 
                 if screenshot_interval and frame_count % screenshot_interval == 0:
                     save_screenshot(
@@ -369,6 +378,8 @@ def capture_frames(
                         annotate_axes=True,
                         box_w=box_w,
                         box_h=box_h,
+                        center_x=center_x,
+                        center_y=center_y,
                     )
 
                 remaining = test_length - elapsed
@@ -414,6 +425,8 @@ if __name__ == "__main__":
     # Center crop box — defined once, used everywhere
     BOX_W = 24
     BOX_H = 24
+    CENTER_X = 690
+    CENTER_Y = 460
 
     SCHEDULE = {"hours": 0, "minutes": 0, "seconds": 5}
     TEST_LENGTH = timedelta(**SCHEDULE).total_seconds()
@@ -428,6 +441,8 @@ if __name__ == "__main__":
         box_w=BOX_W,
         box_h=BOX_H,
         hdf5_path="./Results/rgb/capture.h5",
+        center_x=CENTER_X,
+        center_y=CENTER_Y,
     )
 
     if frames:
@@ -449,14 +464,11 @@ if __name__ == "__main__":
         with open("./Results/rgb/centered.txt", "w+") as f:
             centered_frames = []
             for frame in twod_frames:
-                center_h = len(frame) // 2
-                center_w = len(frame[0]) // 2
-                start_row = center_h - BOX_H // 2
-                end_row = center_h + BOX_H // 2
-                start_col = center_w - BOX_W // 2
-                end_col = center_w + BOX_W // 2
-
+                # ▼▼▼ CHANGE 8: use CENTER_X/CENTER_Y instead of frame center
+                start_row = CENTER_Y - BOX_H // 2
+                end_row = CENTER_Y + BOX_H // 2
+                start_col = CENTER_X - BOX_W // 2
+                end_col = CENTER_X + BOX_W // 2
                 box = [row[start_col:end_col] for row in frame[start_row:end_row]]
                 centered_frames.append(box)
-
             print_frames(centered_frames, f)
