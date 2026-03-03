@@ -193,7 +193,7 @@ def save_screenshot(
         frame = frame_bgr
 
     # timestamp = to_polarspec_timestamp()
-    timestamp = datetime.now()
+    timestamp = datetime.now().isoformat()
     path = os.path.join(output_dir, f"frame_{frame_count:04d}_{timestamp}.png")
     cv2.imwrite(path, frame)
     print(f"  Screenshot saved: {path}")
@@ -231,7 +231,7 @@ def init_hdf5(
     f.attrs["frame_height"] = frame_height
     f.attrs["box_w"] = box_w
     f.attrs["box_h"] = box_h
-    f.attrs["start_timestamp"] = datetime.now()
+    f.attrs["start_timestamp"] = datetime.now().isoformat()
 
     grp = f.create_group("frames")
 
