@@ -200,6 +200,9 @@ def save_screenshot(
     # timestamp = datetime.now().isoformat()
     path = os.path.join(output_dir, f"frame_{frame_count:04d}_{timestamp}.png")
     cv2.imwrite(path, frame)
+    cv2.imwrite(os.path.join(output_dir, "latest.png"), frame)
+    print(f"  Screenshot saved: {path}")
+
     print(f"  Screenshot saved: {path}")
     return path
 
