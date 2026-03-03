@@ -150,6 +150,25 @@ def add_frame_axes(
     return canvas
 
 
+def init_avg_rgb_txt(output_dir):
+    os.makedirs(output_dir, exist_ok=True)
+    path = os.path.join(output_dir, "avg_rgb.txt")
+    f = open(path, "w")
+    f.write("frame | timestamp | avg_r | avg_g | avg_b\n")
+    f.flush()
+    print(f"  avg_rgb.txt opened: {path}")
+    return f
+
+
+def append_avg_rgb(txt_file, frame_rgb, frame_idx, ts, box_w, box_h, cx, cy):
+    crop = frame_rgb[
+        cy - box_h // 2 : cy + box_h // 2, cx - box_w // 2 : cx + box_w // 2
+    ]
+    avg_r, avg_g, avg_b = crop.mean(axis=(0, 1)).round(2)
+    txt_file.write(f"{frame_idx} | {ts} | {avg_r} | {avg_g} | {avg_b}\n")
+    txt_file.flush()  # write to disk immediately — crash-safe
+
+
 def save_screenshot(
     frame_bgr,
     frame_count: int,
@@ -203,7 +222,6 @@ def save_screenshot(
     cv2.imwrite(os.path.join(output_dir, "latest.png"), frame)
     print(f"  Screenshot saved: {path}")
 
-    print(f"  Screenshot saved: {path}")
     return path
 
 
@@ -300,26 +318,6 @@ def capture_frames(
     center_x=None,
     center_y=None,
 ) -> list[list[list[int]]]:
-    """
-    Capture one frame per second from a USB camera for a fixed duration.
-    Every `screenshot_interval` frames, saves a .png with a polarspec timestamp.
-    If hdf5_path is provided, the centered crop of every frame is written
-    incrementally to an HDF5 file.
-
-    Args:
-        camera_index:        Index of the USB camera (0 = default/first camera).
-        test_length:         Total recording duration in seconds.
-        show_preview:        Whether to show a live preview window.
-        screenshot_interval: Save a PNG every N captured frames. None disables screenshots.
-        screenshot_dir:      Directory to save PNG screenshots.
-        box_w:               Width of center crop box.
-        box_h:               Height of center crop box.
-        hdf5_path:           If provided, write crop data incrementally to this .h5 file.
-
-    Returns:
-        temporal_frames: A list of frames, where each frame is a flat list of
-                         [R, G, B] values for every pixel in row-major order.
-    """
     cap = cv2.VideoCapture(camera_index)
     if not cap.isOpened():
         raise RuntimeError(f"Could not open camera at index {camera_index}.")
@@ -331,12 +329,13 @@ def capture_frames(
         f"Camera opened: {w}x{h} | capturing {total_frames} frame(s) over {test_length:.0f}s"
     )
 
-    # Open HDF5 file if requested
     hdf5_file = None
     if hdf5_path and box_w and box_h:
         os.makedirs(os.path.dirname(hdf5_path), exist_ok=True)
         hdf5_file = init_hdf5(hdf5_path, box_w, box_h, camera_index, w, h)
         print(f"HDF5 file opened: {hdf5_path}")
+
+    txt_file = init_avg_rgb_txt(screenshot_dir)  # open txt file at start
 
     temporal_frames: list[list[list[int]]] = []
     start_time = time.monotonic()
@@ -363,15 +362,24 @@ def capture_frames(
                 next_capture += 1.0
                 frame_count = len(temporal_frames)
                 ts = int(to_polarspec_timestamp())
-                # ts = int(datetime.now().timestamp())
 
-                # Append centered crop to HDF5
                 if hdf5_file and box_w and box_h:
                     crop = frame_rgb[
                         cy - box_h // 2 : cy + box_h // 2,
                         cx - box_w // 2 : cx + box_w // 2,
                     ]
-                append_frame_hdf5(hdf5_file, crop, ts)
+                    append_frame_hdf5(hdf5_file, crop, ts)
+
+                append_avg_rgb(
+                    txt_file,
+                    frame_rgb,  # write avg RGB for this frame
+                    frame_count,
+                    ts,
+                    box_w,
+                    box_h,
+                    cx,
+                    cy,
+                )
 
                 if screenshot_interval and frame_count % screenshot_interval == 0:
                     save_screenshot(
@@ -397,6 +405,8 @@ def capture_frames(
                     break
     finally:
         cap.release()
+        txt_file.close()  # close txt file on exit
+        print("avg_rgb.txt closed.")
         if show_preview:
             cv2.destroyAllWindows()
         if hdf5_file:
