@@ -239,7 +239,7 @@ def capture_frames(
 # ── Entry point ───────────────────────────────────────────────────────────────
 if __name__ == "__main__":
 
-    NAME = "test"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
+    NAME = "R-C-5-5"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
 
     CAMERA_INDEX = 1
     SHOW_PREVIEW = False
@@ -252,8 +252,8 @@ if __name__ == "__main__":
     SCHEDULE = {"hours": 5, "minutes": 0, "seconds": 0}
     TEST_LENGTH = timedelta(**SCHEDULE).total_seconds()
 
-    CAPTURE_INTERVAL = 4  # capture avg RGB every 4 seconds
-    SCREENSHOT_EVERY = 75  # every 75 frames × 4s = every 5 minutes
+    CAPTURE_INTERVAL = 6  # capture avg RGB every 6 seconds to match same frequency as spectrum acquision
+    SCREENSHOT_EVERY = 150  # every 150 frames × 4s = every 10 minutes
 
     # print(list_available_cameras())
 
