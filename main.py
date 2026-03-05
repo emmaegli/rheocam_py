@@ -90,7 +90,7 @@ def add_frame_axes(
 
 def init_avg_rgb_csv(output_dir, name):
     os.makedirs(output_dir, exist_ok=True)
-    path = os.path.join(output_dir, f"{name}-avg_rgb.csv")
+    path = os.path.join(output_dir, f"{name}-avg-rgb.csv")
     f = open(path, "w")
     f.write("frame,timestamp,avg r,avg g,avg b\n")
     f.flush()
