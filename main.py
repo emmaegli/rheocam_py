@@ -88,23 +88,23 @@ def add_frame_axes(
     return canvas
 
 
-def init_avg_rgb_txt(output_dir):
+def init_avg_rgb_csv(output_dir, name):
     os.makedirs(output_dir, exist_ok=True)
-    path = os.path.join(output_dir, "avg_rgb.txt")
+    path = os.path.join(output_dir, f"{name}-avg_rgb.csv")
     f = open(path, "w")
-    f.write("frame | timestamp | avg_r | avg_g | avg_b\n")
+    f.write("frame,timestamp,avg r,avg g,avg b\n")
     f.flush()
-    print(f"  avg_rgb.txt opened: {path}")
+    print(f"  {name}-avg_rgb.csv opened: {path}")
     return f
 
 
-def append_avg_rgb(txt_file, frame_rgb, frame_idx, ts, box_w, box_h, cx, cy):
+def append_avg_rgb(csv_file, frame_rgb, frame_idx, ts, box_w, box_h, cx, cy):
     crop = frame_rgb[
         cy - box_h // 2 : cy + box_h // 2, cx - box_w // 2 : cx + box_w // 2
     ]
     avg_r, avg_g, avg_b = crop.mean(axis=(0, 1)).round(2)
-    txt_file.write(f"{frame_idx} | {ts} | {avg_r} | {avg_g} | {avg_b}\n")
-    txt_file.flush()
+    csv_file.write(f"{frame_idx},{ts},{avg_r},{avg_g},{avg_b}\n")
+    csv_file.flush()
 
 
 def save_screenshot(
@@ -138,7 +138,9 @@ def capture_frames(
     show_preview=False,
     capture_interval=1,
     screenshot_interval=None,
-    screenshot_dir="./Results/rgb",
+    # screenshot_dir="./Results/rgb",
+    output_dir="./Results",
+    name="sample",
     box_w=24,
     box_h=24,
     center_x=None,
@@ -160,7 +162,8 @@ def capture_frames(
     #     hdf5_file = init_hdf5(hdf5_path, box_w, box_h, camera_index, w, h)
     #     print(f"HDF5 file opened: {hdf5_path}")
 
-    txt_file = init_avg_rgb_txt(screenshot_dir)
+    screenshot_dir = os.path.join(output_dir, f"{name}-screencaptures")
+    csv_file = init_avg_rgb_csv(output_dir, name)
 
     # temporal_frames = []
     start_time = time.monotonic()
@@ -196,7 +199,7 @@ def capture_frames(
                 #     append_frame_hdf5(hdf5_file, crop, ts)
 
                 append_avg_rgb(
-                    txt_file, frame_rgb, frame_count, ts, box_w, box_h, cx, cy
+                    csv_file, frame_rgb, frame_count, ts, box_w, box_h, cx, cy
                 )
 
                 if frame_count == 1 or (
@@ -217,7 +220,7 @@ def capture_frames(
                         break
     finally:
         cap.release()
-        txt_file.close()
+        csv_file.close()
         print("avg_rgb.txt closed.")
         if show_preview:
             cv2.destroyAllWindows()
@@ -235,6 +238,9 @@ def capture_frames(
 
 # ── Entry point ───────────────────────────────────────────────────────────────
 if __name__ == "__main__":
+
+    NAME = "test"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
+
     CAMERA_INDEX = 1
     SHOW_PREVIEW = False
 
@@ -257,7 +263,8 @@ if __name__ == "__main__":
         show_preview=SHOW_PREVIEW,
         capture_interval=CAPTURE_INTERVAL,
         screenshot_interval=SCREENSHOT_EVERY,
-        screenshot_dir="./Results/rgb",
+        output_dir="./Results",
+        name=NAME,
         box_w=BOX_W,
         box_h=BOX_H,
         center_x=CENTER_X,
