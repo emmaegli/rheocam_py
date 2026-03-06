@@ -247,7 +247,7 @@ if __name__ == "__main__":
     BOX_W = 24
     BOX_H = 24
     CENTER_X = 300
-    CENTER_Y = 250
+    CENTER_Y = 300
 
     SCHEDULE = {"hours": 5, "minutes": 0, "seconds": 0}
     TEST_LENGTH = timedelta(**SCHEDULE).total_seconds()
