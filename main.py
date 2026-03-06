@@ -241,7 +241,7 @@ if __name__ == "__main__":
 
     NAME = "test"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
 
-    CAMERA_INDEX = 1
+    CAMERA_INDEX = 0
     SHOW_PREVIEW = False
 
     BOX_W = 24
