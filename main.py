@@ -229,7 +229,7 @@ def capture_frames(
 # ── Entry point ───────────────────────────────────────────────────────────────
 if __name__ == "__main__":
 
-    NAME = "R-C-5-6"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
+    NAME = "test"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
 
     CAMERA_INDEX = 1
     SHOW_PREVIEW = False
