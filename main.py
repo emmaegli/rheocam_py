@@ -130,8 +130,10 @@ def capture_frames(
     center_x=None,
     center_y=None,
 ):
-    cap = cv2.VideoCapture("/dev/video0", cv2.CAP_V4L2)  # ← use device path + V4L2 backend
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)               # ← lock resolution
+    cap = cv2.VideoCapture(
+        "/dev/video0", cv2.CAP_V4L2
+    )  # ← use device path + V4L2 backend
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)  # ← lock resolution
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
     if not cap.isOpened():
         raise RuntimeError(f"Could not open camera at index {camera_index}.")
@@ -214,7 +216,7 @@ def capture_frames(
 # ── Entry point ───────────────────────────────────────────────────────────────
 if __name__ == "__main__":
 
-    NAME = "R-C-5-6"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
+    NAME = "test"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
 
     CAMERA_INDEX = 0
     SHOW_PREVIEW = False
