@@ -167,7 +167,8 @@ def capture_frames(
     cy = center_y if center_y is not None else h // 2
 
     frame_count = 0
-    last_frame_bgr = None
+    last_frame_bgr = None  # ← CHANGE 1: track the last captured frame
+    startup_shot_taken = False  # track whether the 2nd startup screenshot has fired
 
     try:
         while True:
@@ -187,7 +188,7 @@ def capture_frames(
                 frame_count += 1
                 ts = int(to_polarspec_timestamp())
 
-                last_frame_bgr = frame_bgr
+                last_frame_bgr = frame_bgr  # ← CHANGE 2: update on every capture
 
                 append_avg_rgb(
                     csv_file, frame_rgb, frame_count, ts, box_w, box_h, cx, cy
@@ -207,12 +208,17 @@ def capture_frames(
                         frame_bgr, frame_count, screenshot_dir, box_w, box_h, cx, cy
                     )
 
+                print(
+                    f"  Frame {frame_count:4d} | t={elapsed:5.1f}s | {test_length - elapsed:.1f}s remaining"
+                )
+
                 if show_preview:
                     cv2.imshow("USB Camera Preview (Q to quit)", frame_bgr)
                     if cv2.waitKey(1) & 0xFF == ord("q"):
                         print("User quit.")
                         break
     finally:
+        # ← CHANGE 3: save the last frame with a timestamp after the loop ends
         if last_frame_bgr is not None:
             save_screenshot(
                 last_frame_bgr, frame_count, screenshot_dir, box_w, box_h, cx, cy
