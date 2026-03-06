@@ -5,8 +5,6 @@ Saves periodic screenshots and a per-frame average RGB txt for the center crop b
 
 import os
 import cv2
-
-# import h5py
 import numpy as np
 import time
 
@@ -20,21 +18,6 @@ def to_polarspec_timestamp(dt=None, epoch=EPOCH_ORIGIN, prefix=""):
         dt = datetime.now(timezone.utc).replace(tzinfo=None)
     delta = dt - epoch
     return f"{prefix}{int(delta.total_seconds())}"
-
-
-# def list_available_cameras(max_index=10):
-#     available = []
-#     for i in range(max_index):
-#         cap = cv2.VideoCapture(i)
-#         if cap.isOpened():
-#             available.append({
-#                 "index": i,
-#                 "width": int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
-#                 "height": int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
-#                 "fps": cap.get(cv2.CAP_PROP_FPS),
-#             })
-#             cap.release()
-#     return available
 
 
 def add_frame_axes(
@@ -90,7 +73,16 @@ def add_frame_axes(
 
 def init_avg_rgb_csv(output_dir, name):
     os.makedirs(output_dir, exist_ok=True)
-    path = os.path.join(output_dir, f"{name}-avg-rgb.csv")
+    base_path = os.path.join(output_dir, f"{name}-avg-rgb.csv")
+
+    # "test" runs always overwrite; real sample names get a counter to avoid clobbering data
+    path = base_path
+    if name != "test":
+        counter = 1
+        while os.path.exists(path):
+            path = os.path.join(output_dir, f"{name}-avg-rgb_{counter}.csv")
+            counter += 1
+
     f = open(path, "w")
     f.write("frame,timestamp,avg r,avg g,avg b\n")
     f.flush()
@@ -125,20 +117,12 @@ def save_screenshot(
     print(f"  Screenshot saved: {path}")
 
 
-# def init_hdf5(path, box_w, box_h, camera_index, frame_width, frame_height):
-#     ...
-
-# def append_frame_hdf5(hdf5_file, crop, timestamp):
-#     ...
-
-
 def capture_frames(
     camera_index=0,
     test_length=10.0,
     show_preview=False,
     capture_interval=1,
     screenshot_interval=None,
-    # screenshot_dir="./Results/rgb",
     output_dir="./Results",
     name="sample",
     box_w=24,
@@ -146,7 +130,9 @@ def capture_frames(
     center_x=None,
     center_y=None,
 ):
-    cap = cv2.VideoCapture(camera_index)
+    cap = cv2.VideoCapture("/dev/video0", cv2.CAP_V4L2)  # ← use device path + V4L2 backend
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)               # ← lock resolution
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
     if not cap.isOpened():
         raise RuntimeError(f"Could not open camera at index {camera_index}.")
 
@@ -156,16 +142,9 @@ def capture_frames(
         f"Camera opened: {w}x{h} | capturing {int(test_length)} frame(s) over {test_length:.0f}s"
     )
 
-    # hdf5_file = None
-    # if hdf5_path and box_w and box_h:
-    #     os.makedirs(os.path.dirname(hdf5_path), exist_ok=True)
-    #     hdf5_file = init_hdf5(hdf5_path, box_w, box_h, camera_index, w, h)
-    #     print(f"HDF5 file opened: {hdf5_path}")
-
     screenshot_dir = os.path.join(output_dir, f"{name}-screencaptures")
     csv_file = init_avg_rgb_csv(output_dir, name)
 
-    # temporal_frames = []
     start_time = time.monotonic()
     next_capture = start_time
 
@@ -173,6 +152,7 @@ def capture_frames(
     cy = center_y if center_y is not None else h // 2
 
     frame_count = 0
+    last_frame_bgr = None  # track the last captured frame
 
     try:
         while True:
@@ -188,15 +168,11 @@ def capture_frames(
 
             if now >= next_capture:
                 frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
-                # temporal_frames.append(frame_rgb.reshape(-1, 3).tolist())
                 next_capture += capture_interval
                 frame_count += 1
                 ts = int(to_polarspec_timestamp())
 
-                # if hdf5_file and box_w and box_h:
-                #     crop = frame_rgb[cy - box_h//2 : cy + box_h//2,
-                #                      cx - box_w//2 : cx + box_w//2]
-                #     append_frame_hdf5(hdf5_file, crop, ts)
+                last_frame_bgr = frame_bgr  # update on every capture
 
                 append_avg_rgb(
                     csv_file, frame_rgb, frame_count, ts, box_w, box_h, cx, cy
@@ -219,21 +195,20 @@ def capture_frames(
                         print("User quit.")
                         break
     finally:
+        # save the last frame with a timestamp after the loop ends
+        if last_frame_bgr is not None:
+            save_screenshot(
+                last_frame_bgr, frame_count, screenshot_dir, box_w, box_h, cx, cy
+            )
+            print("  Final timestamped screenshot saved.")
+
         cap.release()
         csv_file.close()
         print("avg_rgb.txt closed.")
         if show_preview:
             cv2.destroyAllWindows()
-        # if hdf5_file:
-        #     hdf5_file["frames"].attrs["count"] = frame_count
-        #     hdf5_file.close()
-        #     print(f"HDF5 file closed: {hdf5_path}")
 
     print(f"\nCaptured {frame_count} frames over {test_length:.0f}s.")
-
-
-# def print_frames(frames, f):
-#     ...
 
 
 # ── Entry point ───────────────────────────────────────────────────────────────
@@ -241,21 +216,19 @@ if __name__ == "__main__":
 
     NAME = "R-C-5-6"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
 
-    CAMERA_INDEX = 1
+    CAMERA_INDEX = 0
     SHOW_PREVIEW = False
 
     BOX_W = 24
     BOX_H = 24
-    CENTER_X = 300
-    CENTER_Y = 275
+    CENTER_X = 600
+    CENTER_Y = 450
 
     SCHEDULE = {"hours": 5, "minutes": 0, "seconds": 0}
     TEST_LENGTH = timedelta(**SCHEDULE).total_seconds()
 
-    CAPTURE_INTERVAL = 4  # capture avg RGB every 4 seconds
-    SCREENSHOT_EVERY = 75  # every 75 frames × 4s = every 5 minutes
-
-    # print(list_available_cameras())
+    CAPTURE_INTERVAL = 6  # capture avg RGB every 6 seconds
+    SCREENSHOT_EVERY = 150  # every 150 frames × 6s = every 15 minutes
 
     capture_frames(
         camera_index=CAMERA_INDEX,
@@ -270,28 +243,3 @@ if __name__ == "__main__":
         center_x=CENTER_X,
         center_y=CENTER_Y,
     )
-
-    # if frames:
-    #     with open("./Results/rgb/out.txt", "w+") as f:
-    #         twod_frames = []
-    #         for frame in frames:
-    #             twod_frame = [[]]
-    #             row_index = 0
-    #             for idx, pixel in enumerate(frame):
-    #                 twod_frame[row_index].append(pixel)
-    #                 if idx % FRAME_WIDTH == 0 and idx != 0:
-    #                     row_index += 1
-    #                     twod_frame.append([])
-    #             twod_frames.append(twod_frame)
-    #         print_frames(twod_frames, f)
-
-    #     with open("./Results/rgb/centered.txt", "w+") as f:
-    #         centered_frames = []
-    #         for frame in twod_frames:
-    #             start_row = CENTER_Y - BOX_H // 2
-    #             end_row   = CENTER_Y + BOX_H // 2
-    #             start_col = CENTER_X - BOX_W // 2
-    #             end_col   = CENTER_X + BOX_W // 2
-    #             box = [row[start_col:end_col] for row in frame[start_row:end_row]]
-    #             centered_frames.append(box)
-    #         print_frames(centered_frames, f)
