@@ -168,7 +168,6 @@ def capture_frames(
 
     frame_count = 0
     last_frame_bgr = None  # ← CHANGE 1: track the last captured frame
-    startup_shot_taken = False  # track whether the 2nd startup screenshot has fired
 
     try:
         while True:
@@ -193,13 +192,6 @@ def capture_frames(
                 append_avg_rgb(
                     csv_file, frame_rgb, frame_count, ts, box_w, box_h, cx, cy
                 )
-
-                # 2nd startup screenshot: first capture at or after t=1s
-                if frame_count > 1 and not startup_shot_taken and elapsed >= 1.0:
-                    save_screenshot(
-                        frame_bgr, frame_count, screenshot_dir, box_w, box_h, cx, cy
-                    )
-                    startup_shot_taken = True
 
                 if frame_count == 1 or (
                     screenshot_interval and frame_count % screenshot_interval == 0
