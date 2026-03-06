@@ -230,7 +230,7 @@ if __name__ == "__main__":
     TEST_LENGTH = timedelta(**SCHEDULE).total_seconds()
 
     CAPTURE_INTERVAL = 6  # capture avg RGB every 6 seconds
-    SCREENSHOT_EVERY = 150  # every 150 frames × 6s = every 15 minutes
+    SCREENSHOT_EVERY = 1  # every 150 frames × 6s = every 15 minutes
 
     capture_frames(
         camera_index=CAMERA_INDEX,
