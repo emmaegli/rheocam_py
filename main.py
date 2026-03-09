@@ -138,6 +138,18 @@ def capture_frames(
     if not cap.isOpened():
         raise RuntimeError(f"Could not open camera at index {camera_index}.")
 
+    # ── Warm-up: let AWB and auto-exposure settle before recording starts ──────
+    #  Without this, the first screenshot captures before the camera's auto white
+    # balance and exposure have converged, producing a warmer/different tone than
+    # all subsequent screenshots and skewing early RGB readings.
+    WARMUP_SECONDS = 3
+    print(f"  Warming up camera for {WARMUP_SECONDS}s...")
+    warmup_deadline = time.monotonic() + WARMUP_SECONDS
+    while time.monotonic() < warmup_deadline:
+        cap.read()  # discard frames
+    print("  Camera ready.")
+    # ──────────────────────────────────────────────────────────────────────────
+
     w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     print(
