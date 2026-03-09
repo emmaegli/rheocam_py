@@ -226,18 +226,19 @@ if __name__ == "__main__":
     CENTER_X = 600
     CENTER_Y = 450
 
-    SCHEDULE = {"hours": 5, "minutes": 0, "seconds": 0}
-    TEST_LENGTH = timedelta(**SCHEDULE).total_seconds()
+    SCHEDULE = {"hours": 6, "minutes": 0, "seconds": 0}
+    test_length = timedelta(**SCHEDULE).total_seconds()
 
     CAPTURE_INTERVAL = 6  # capture avg RGB every 6 seconds
-    SCREENSHOT_EVERY = 1  # every 150 frames × 6s = every 15 minutes
+    SCREENSHOT_INTERVAL_MINUTES = 1  # take a screenshot from the camera every N minutes
+    screenshot_every = round((SCREENSHOT_INTERVAL_MINUTES * 60) / CAPTURE_INTERVAL)
 
     capture_frames(
         camera_index=CAMERA_INDEX,
-        test_length=TEST_LENGTH,
+        test_length=test_length,
         show_preview=SHOW_PREVIEW,
         capture_interval=CAPTURE_INTERVAL,
-        screenshot_interval=SCREENSHOT_EVERY,
+        screenshot_interval=screenshot_every,
         output_dir="./Results",
         name=NAME,
         box_w=BOX_W,
