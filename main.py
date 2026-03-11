@@ -228,7 +228,7 @@ def capture_frames(
 # ── Entry point ───────────────────────────────────────────────────────────────
 if __name__ == "__main__":
 
-    NAME = "SC-C-0.1-14"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
+    NAME = "R-I-1-1"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
 
     CAMERA_INDEX = 0
     SHOW_PREVIEW = False
@@ -238,7 +238,7 @@ if __name__ == "__main__":
     CENTER_X = 675
     CENTER_Y = 300
 
-    SCHEDULE = {"hours": 8, "minutes": 0, "seconds": 0}
+    SCHEDULE = {"hours": 1, "minutes": 0, "seconds": 0}
     test_length = timedelta(**SCHEDULE).total_seconds()
 
     CAPTURE_INTERVAL = 6  # capture avg RGB every 6 seconds
