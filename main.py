@@ -229,7 +229,7 @@ def capture_frames(
 if __name__ == "__main__":
 
     # NAME = "test"
-    NAME = "SC-C-0.1-20"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
+    NAME = "test"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
 
     CAMERA_INDEX = 0
     SHOW_PREVIEW = False
@@ -244,7 +244,7 @@ if __name__ == "__main__":
 
     CAPTURE_INTERVAL = 6  # capture avg RGB every 6 seconds
     SCREENSHOT_INTERVAL_MINUTES = (
-        5  # take a screenshot from the camera every N minutes
+        0.1  # take a screenshot from the camera every N minutes
     )
     screenshot_every = round((SCREENSHOT_INTERVAL_MINUTES * 60) / CAPTURE_INTERVAL)
 
