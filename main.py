@@ -239,7 +239,7 @@ if __name__ == "__main__":
     CENTER_X = 675
     CENTER_Y = 300
 
-    SCHEDULE = {"hours": 5.1, "minutes": 0, "seconds": 0}
+    SCHEDULE = {"hours": 5, "minutes": 6, "seconds": 0}
     test_length = timedelta(**SCHEDULE).total_seconds()
 
     CAPTURE_INTERVAL = 6  # capture avg RGB every 6 seconds
