@@ -229,7 +229,7 @@ def capture_frames(
 if __name__ == "__main__":
 
     NAME = "test"
-    NAME = "SCR-C-1-1"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
+    # NAME = "SCR-C-1-1"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
 
     CAMERA_INDEX = 0
     SHOW_PREVIEW = False
