@@ -308,8 +308,8 @@ if __name__ == "__main__":
             "label": "aoi2",
             "box_w": 24,
             "box_h": 24,
-            "center_x": 900,  # ← set the second AOI's location
-            "center_y": 300,
+            "center_x": 460,  # ← set the second AOI's location
+            "center_y": 200,
             "color": (255, 0, 0),  # blue
         },
     ]
