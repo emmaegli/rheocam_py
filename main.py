@@ -437,8 +437,8 @@ if __name__ == "__main__":
         {
             "label": "pol_1",
             "type": "auto_laser",
-            "box_w": 22,  # matches BOX_W from post-process analysis
-            "box_h": 22,  # matches BOX_H from post-process analysis
+            "box_w": 15,  # matches BOX_W from post-process analysis
+            "box_h": 15,  # matches BOX_H from post-process analysis
             "search_region": {
                 # Carried over from post-process SEARCH_X_MIN/MAX, SEARCH_Y_MIN/MAX.
                 # These are raw-frame pixel coordinates -- no AXES_MARGIN offset
@@ -447,8 +447,8 @@ if __name__ == "__main__":
                 # indexing into *saved screenshots*, which have it baked in).
                 "x": 250,
                 "y": 0,
-                "w": 900 - 250,  # SEARCH_X_MAX - SEARCH_X_MIN
-                "h": 250 - 0,  # SEARCH_Y_MAX - SEARCH_Y_MIN
+                "w": 900 - 600,  # SEARCH_X_MAX - SEARCH_X_MIN
+                "h": 250 - 100,  # SEARCH_Y_MAX - SEARCH_Y_MIN
             },
             "color": (0, 255, 255),  # yellow
         },
