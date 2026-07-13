@@ -445,8 +445,8 @@ if __name__ == "__main__":
                 # needed here, since this runs on the unannotated camera frame
                 # (the post-process script only adds that margin because it's
                 # indexing into *saved screenshots*, which have it baked in).
-                "x": 250,
-                "y": 0,
+                "x": 600,
+                "y": 100,
                 "w": 900 - 600,  # SEARCH_X_MAX - SEARCH_X_MIN
                 "h": 250 - 100,  # SEARCH_Y_MAX - SEARCH_Y_MIN
             },
