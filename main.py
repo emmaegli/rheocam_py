@@ -316,9 +316,9 @@ if __name__ == "__main__":
             "label": "up_3",
             "box_w": 24,
             "box_h": 24,
-            "center_x": 520,  # ← set the second AOI's location
-            "center_y": 275,
-            "color": (255, 0, 0),  # blue
+            "center_x": 500,  # ← set the second AOI's location
+            "center_y": 310,
+            "color": (160, 32, 255),  # purple
         },
     ]
     # ────────────────────────────────────────────────────────────────────────
