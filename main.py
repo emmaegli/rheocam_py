@@ -297,7 +297,7 @@ if __name__ == "__main__":
     # "color": the color of the box that defines each aoi in post process box draw, so (0,0,255)=red, (255,0,0)=blue, etc.
     AOIS = [
         {
-            "label": "aoi1",
+            "label": "up_1",
             "box_w": 24,
             "box_h": 24,
             "center_x": 675,
@@ -305,11 +305,19 @@ if __name__ == "__main__":
             "color": (0, 0, 255),  # red
         },
         {
-            "label": "aoi2",
+            "label": "up_2",
             "box_w": 24,
             "box_h": 24,
-            "center_x": 460,  # ← set the second AOI's location
+            "center_x": 430,  # ← set the second AOI's location
             "center_y": 200,
+            "color": (255, 0, 0),  # blue
+        },
+        {
+            "label": "up_3",
+            "box_w": 24,
+            "box_h": 24,
+            "center_x": 520,  # ← set the second AOI's location
+            "center_y": 275,
             "color": (255, 0, 0),  # blue
         },
     ]
