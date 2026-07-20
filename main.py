@@ -324,8 +324,8 @@ if __name__ == "__main__":
             "label": "pol_1",
             "box_w": 18,
             "box_h": 18,
-            "center_x": 735,  # ← set the second AOI's location
-            "center_y": 185,
+            "center_x": 750,  # ← set the second AOI's location
+            "center_y": 190,
             "color": (255, 224, 32),  # blue
         },
     ]
