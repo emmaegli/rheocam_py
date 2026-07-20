@@ -287,8 +287,8 @@ def capture_frames(
 # ── Entry point ───────────────────────────────────────────────────────────────
 if __name__ == "__main__":
 
-    NAME = "test"
-    # NAME = "SC-H-1-1"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
+    # NAME = "test"
+    NAME = "SC-H-1-1"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
 
     CAMERA_INDEX = 0
     SHOW_PREVIEW = False
