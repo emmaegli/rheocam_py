@@ -324,8 +324,8 @@ if __name__ == "__main__":
             "label": "pol_1",
             "box_w": 18,
             "box_h": 18,
-            "center_x": 750,  # ← set the second AOI's location
-            "center_y": 190,
+            "center_x": 755,  # ← set the second AOI's location
+            "center_y": 200,
             "color": (255, 224, 32),  # blue
         },
     ]
@@ -335,7 +335,9 @@ if __name__ == "__main__":
     test_length = timedelta(**SCHEDULE).total_seconds()
 
     CAPTURE_INTERVAL = 6  # capture avg RGB every 6 seconds
-    SCREENSHOT_INTERVAL_MINUTES = 0.1  # take a screenshot from the camera every N minutes
+    SCREENSHOT_INTERVAL_MINUTES = (
+        0.1  # take a screenshot from the camera every N minutes
+    )
     screenshot_every = round((SCREENSHOT_INTERVAL_MINUTES * 60) / CAPTURE_INTERVAL)
 
     capture_frames(
