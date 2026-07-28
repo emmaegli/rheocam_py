@@ -75,7 +75,6 @@ def init_avg_rgb_csv(output_dir, name, aoi_labels):
     os.makedirs(output_dir, exist_ok=True)
     base_path = os.path.join(output_dir, f"{name}-avg-rgb.csv")
 
-    # "test" runs always overwrite; real sample names get a counter to avoid clobbering data
     path = base_path
     if name != "test":
         counter = 1
@@ -85,7 +84,9 @@ def init_avg_rgb_csv(output_dir, name, aoi_labels):
 
     f = open(path, "w")
     aoi_columns = ",".join(
-        f"{label} avg r,{label} avg g,{label} avg b" for label in aoi_labels
+        f"{label} avg r,{label} avg g,{label} avg b,"
+        f"{label} std r,{label} std g,{label} std b"
+        for label in aoi_labels
     )
     f.write(f"frame,timestamp,{aoi_columns}\n")
     f.flush()
@@ -97,15 +98,20 @@ def compute_avg_rgb(frame_rgb, box_w, box_h, cx, cy):
     crop = frame_rgb[
         cy - box_h // 2 : cy + box_h // 2, cx - box_w // 2 : cx + box_w // 2
     ]
-    return crop.mean(axis=(0, 1)).round(2)
+    avg = crop.mean(axis=(0, 1)).round(2)
+    std = crop.std(axis=(0, 1)).round(2)
+    return avg, std
 
 
 def append_avg_rgb(csv_file, frame_idx, ts, aoi_values):
     """
-    aoi_values: list of (avg_r, avg_g, avg_b) tuples, one per AOI, in the same
-    order the CSV header was built with.
+    aoi_values: list of ((avg_r, avg_g, avg_b), (std_r, std_g, std_b)) tuples,
+    one per AOI, in the same order the CSV header was built with.
     """
-    values_str = ",".join(f"{r},{g},{b}" for (r, g, b) in aoi_values)
+    values_str = ",".join(
+        f"{avg[0]},{avg[1]},{avg[2]},{std[0]},{std[1]},{std[2]}"
+        for (avg, std) in aoi_values
+    )
     csv_file.write(f"{frame_idx},{ts},{values_str}\n")
     csv_file.flush()
 
@@ -287,8 +293,8 @@ def capture_frames(
 # ── Entry point ───────────────────────────────────────────────────────────────
 if __name__ == "__main__":
 
-    # NAME = "test"
-    NAME = "CSR-C-150-2"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
+    NAME = "test"
+    # NAME = "CSR-C-150-2"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
 
     CAMERA_INDEX = 0
     SHOW_PREVIEW = False
@@ -331,11 +337,11 @@ if __name__ == "__main__":
     ]
     # ────────────────────────────────────────────────────────────────────────
 
-    SCHEDULE = {"hours": 2, "minutes": 15, "seconds": 0}
+    SCHEDULE = {"hours": 3, "minutes": 0, "seconds": 0}
     test_length = timedelta(**SCHEDULE).total_seconds()
 
     CAPTURE_INTERVAL = 6  # capture avg RGB every 6 seconds
-    SCREENSHOT_INTERVAL_MINUTES = 1  # take a screenshot from the camera every N minutes
+    SCREENSHOT_INTERVAL_MINUTES = 0.1  # take a screenshot from the camera every N minutes
     screenshot_every = round((SCREENSHOT_INTERVAL_MINUTES * 60) / CAPTURE_INTERVAL)
 
     capture_frames(
