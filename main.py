@@ -323,7 +323,7 @@ if __name__ == "__main__":
             "box_w": 24,
             "box_h": 24,
             "center_x": 430,  # ← set the second AOI's location
-            "center_y": 200,
+            "center_y": 210,
             "color": (255, 0, 0),  # blue
         },
         {
