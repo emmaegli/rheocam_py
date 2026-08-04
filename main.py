@@ -293,8 +293,8 @@ def capture_frames(
 # ── Entry point ───────────────────────────────────────────────────────────────
 if __name__ == "__main__":
 
-    NAME = "WHITE"
-    # NAME = "SSW-H-3-1"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
+    NAME = "test"
+    # NAME = "CS-C-150R-2"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
 
     CAMERA_INDEX = 0
     SHOW_PREVIEW = False
