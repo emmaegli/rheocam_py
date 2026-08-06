@@ -162,6 +162,7 @@ def capture_frames(
     output_dir="./Results",
     name="sample",
     aois=None,
+    start_frame=0,
 ):
     """
     aois: list of dicts defining each area of interest, e.g.:
@@ -228,7 +229,7 @@ def capture_frames(
     start_time = time.monotonic()
     next_capture = start_time
 
-    frame_count = 0
+    frame_count = start_frame
     last_frame_bgr = None  # track the last captured frame
 
     try:
@@ -337,12 +338,14 @@ if __name__ == "__main__":
     ]
     # ────────────────────────────────────────────────────────────────────────
 
-    SCHEDULE = {"hours": 2, "minutes": 30, "seconds": 0}
+    SCHEDULE = {"hours": 3, "minutes": 30, "seconds": 0}
     test_length = timedelta(**SCHEDULE).total_seconds()
 
     CAPTURE_INTERVAL = 6  # capture avg RGB every 6 seconds
     SCREENSHOT_INTERVAL_MINUTES = 1  # take a screenshot from the camera every N minutes
     screenshot_every = round((SCREENSHOT_INTERVAL_MINUTES * 60) / CAPTURE_INTERVAL)
+
+    START_FRAME = 1500
 
     capture_frames(
         camera_index=CAMERA_INDEX,
@@ -353,4 +356,5 @@ if __name__ == "__main__":
         output_dir="./Results",
         name=NAME,
         aois=AOIS,
+        start_frame=START_FRAME,
     )
