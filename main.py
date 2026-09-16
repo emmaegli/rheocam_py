@@ -294,8 +294,8 @@ def capture_frames(
 # ── Entry point ───────────────────────────────────────────────────────────────
 if __name__ == "__main__":
 
-    NAME = "test"
-    # NAME = "CSR-C-153-3"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
+    # NAME = "test"
+    NAME = "CSR-C-153-3"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
 
     CAMERA_INDEX = 0
     SHOW_PREVIEW = False
@@ -331,7 +331,7 @@ if __name__ == "__main__":
             "label": "pol_1",
             "box_w": 18,
             "box_h": 18,
-            "center_x": 745,  # ← set the second AOI's location
+            "center_x": 740,  # ← set the second AOI's location
             "center_y": 180,
             "color": (255, 224, 32),  # blue
         },
@@ -343,7 +343,7 @@ if __name__ == "__main__":
 
     CAPTURE_INTERVAL = 6  # capture avg RGB every 6 seconds
     SCREENSHOT_INTERVAL_MINUTES = (
-        0.1  # take a screenshot from the camera every N minutes
+        1  # take a screenshot from the camera every N minutes
     )
     screenshot_every = round((SCREENSHOT_INTERVAL_MINUTES * 60) / CAPTURE_INTERVAL)
 
