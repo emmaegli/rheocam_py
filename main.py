@@ -295,7 +295,7 @@ def capture_frames(
 if __name__ == "__main__":
 
     NAME = "test"
-    NAME = "SCS-C-0.1-5"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
+    # NAME = "SCS-C-0.1-5"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
 
     CAMERA_INDEX = 0
     SHOW_PREVIEW = False
