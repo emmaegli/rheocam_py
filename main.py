@@ -295,7 +295,7 @@ def capture_frames(
 if __name__ == "__main__":
 
     NAME = "test"
-    # NAME = "CR-C-R-1"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
+    # NAME = "R-C-1-1"  # the sample name -- CHANGE THIS EVERY EXPERIMENT
 
     CAMERA_INDEX = 0
     SHOW_PREVIEW = False
@@ -338,7 +338,7 @@ if __name__ == "__main__":
     ]
     # ────────────────────────────────────────────────────────────────────────
 
-    SCHEDULE = {"hours": 4, "minutes": 30, "seconds": 0}
+    SCHEDULE = {"hours": 1, "minutes": 30, "seconds": 0}
     test_length = timedelta(**SCHEDULE).total_seconds()
 
     CAPTURE_INTERVAL = 6  # capture avg RGB every 6 seconds
