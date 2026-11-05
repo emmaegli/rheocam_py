@@ -338,11 +338,13 @@ if __name__ == "__main__":
     ]
     # ────────────────────────────────────────────────────────────────────────
 
-    SCHEDULE = {"hours": 1, "minutes": 30, "seconds": 0}
+    SCHEDULE = {"hours": 6, "minutes": 0, "seconds": 0}
     test_length = timedelta(**SCHEDULE).total_seconds()
 
     CAPTURE_INTERVAL = 6  # capture avg RGB every 6 seconds
-    SCREENSHOT_INTERVAL_MINUTES = 1  # take a screenshot from the camera every N minutes
+    SCREENSHOT_INTERVAL_MINUTES = (
+        0.1  # take a screenshot from the camera every N minutes
+    )
     screenshot_every = round((SCREENSHOT_INTERVAL_MINUTES * 60) / CAPTURE_INTERVAL)
 
     START_FRAME = 0
